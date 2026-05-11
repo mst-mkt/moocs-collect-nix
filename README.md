@@ -19,3 +19,11 @@ nix run github:mst-mkt/moocs-collect-nix#collect-cli
 nix run github:mst-mkt/moocs-collect-nix#collect-tui
 nix run github:mst-mkt/moocs-collect-nix#mcmerge
 ```
+
+## Binary cache
+
+Skip local builds by using the Cachix cache.
+
+```bash
+cachix use moocs-collect-nix
+```
