@@ -18,11 +18,11 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       flake-utils,
       moocs-collect-src,
       moocs-collect-tui-src,
+      ...
     }:
     let
       overlay = final: _prev: {
@@ -50,37 +50,16 @@
           inherit system;
           overlays = [ overlay ];
         };
-        inherit (nixpkgs) lib;
       in
       {
         packages = {
-          inherit (pkgs) collect-cli mcmerge collect-tui;
+          inherit (pkgs)
+            collect-cli
+            collect-tui
+            mcmerge
+            moocs-collect
+            ;
           default = pkgs.collect-cli;
-        }
-        // lib.optionalAttrs (pkgs.moocs-collect.meta.available or true) {
-          inherit (pkgs) moocs-collect;
-        };
-
-        apps = {
-          cli = {
-            type = "app";
-            program = "${pkgs.collect-cli}/bin/collect-cli";
-          };
-          mcmerge = {
-            type = "app";
-            program = "${pkgs.mcmerge}/bin/mcmerge";
-          };
-          tui = {
-            type = "app";
-            program = "${pkgs.collect-tui}/bin/collect-tui";
-          };
-          default = self.apps.${system}.cli;
-        }
-        // lib.optionalAttrs (pkgs.moocs-collect.meta.available or true) {
-          desktop = {
-            type = "app";
-            program = "${pkgs.moocs-collect}/bin/moocs-collect";
-          };
         };
 
         devShells.default = pkgs.mkShell {
