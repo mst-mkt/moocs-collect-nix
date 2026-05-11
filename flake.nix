@@ -35,10 +35,9 @@
         mcmerge = final.callPackage ./pkgs/mcmerge.nix {
           src = moocs-collect-src;
         };
-        # TODO: Tauri デスクトップを追加する
-        # moocs-collect = final.callPackage ./pkgs/moocs-collect.nix {
-        #   src = moocs-collect-src;
-        # };
+        moocs-collect = final.callPackage ./pkgs/moocs-collect.nix {
+          src = moocs-collect-src;
+        };
       };
     in
     {
@@ -51,11 +50,15 @@
           inherit system;
           overlays = [ overlay ];
         };
+        inherit (nixpkgs) lib;
       in
       {
         packages = {
           inherit (pkgs) collect-cli mcmerge collect-tui;
           default = pkgs.collect-cli;
+        }
+        // lib.optionalAttrs (pkgs.moocs-collect.meta.available or true) {
+          inherit (pkgs) moocs-collect;
         };
 
         apps = {
@@ -72,6 +75,12 @@
             program = "${pkgs.collect-tui}/bin/collect-tui";
           };
           default = self.apps.${system}.cli;
+        }
+        // lib.optionalAttrs (pkgs.moocs-collect.meta.available or true) {
+          desktop = {
+            type = "app";
+            program = "${pkgs.moocs-collect}/bin/moocs-collect";
+          };
         };
 
         devShells.default = pkgs.mkShell {
