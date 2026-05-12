@@ -17,6 +17,7 @@
   dbus,
   libsecret,
   apple-sdk,
+  darwin,
   fetchurl,
   src,
 }:
@@ -49,6 +50,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     fetcherVersion = 3;
     hash = "sha256-xQHbwiZWy2WRddO09ViO+1m+2fryryoJfsR+azWu7B0=";
   };
+  pnpmWorkspaces = [ "desktop" ];
 
   cargoRoot = "../..";
   cargoHash = "sha256-L3n1pg78X8TK7zNacSLW9erAuURd+JehZbgGmOHuojs=";
@@ -58,6 +60,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   postPatch = ''
     substituteInPlace src-tauri/tauri.conf.json \
       --replace-fail '"createUpdaterArtifacts": true' '"createUpdaterArtifacts": false'
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
+    substituteInPlace src-tauri/tauri.conf.json \
+      --replace-fail '"signingIdentity": "-"' '"signingIdentity": null'
   '';
 
   preBuild = ''
@@ -80,6 +86,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
     wrapGAppsHook4
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    darwin.xattr
   ];
 
   buildInputs = [
@@ -118,10 +127,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
       ''
     else
       ''
-        # macOS .app bundle: $out/Applications/collect.app/Contents/MacOS/collect
+        # macOS .app bundle: $out/Applications/collect.app/Contents/MacOS/app
         mv $out/Applications/collect.app $out/Applications/moocs-collect.app
         mkdir -p $out/bin
-        ln -s $out/Applications/moocs-collect.app/Contents/MacOS/collect $out/bin/moocs-collect
+        ln -s $out/Applications/moocs-collect.app/Contents/MacOS/app $out/bin/moocs-collect
       '';
 
   meta = {
