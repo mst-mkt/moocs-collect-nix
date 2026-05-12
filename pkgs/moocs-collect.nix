@@ -61,6 +61,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
   '';
 
   preBuild = ''
+    # Drop sibling workspace package to avoid @types/react version conflict
+    # (apps/website pins ^19.1.13, apps/desktop pins ^19.0.10) that surfaces
+    # non-deterministically on aarch64-darwin tsc -b. See issue #2.
+    rm -rf ../website
+
     # lindera-unidic offline dictionary
     export LINDERA_CACHE="$NIX_BUILD_TOP/lindera-cache"
     mkdir -p "$LINDERA_CACHE/1.2.0"
