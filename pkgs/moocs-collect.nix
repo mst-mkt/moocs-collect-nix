@@ -17,6 +17,7 @@
   dbus,
   libsecret,
   apple-sdk,
+  darwin,
   fetchurl,
   src,
 }:
@@ -81,6 +82,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
     wrapGAppsHook4
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    darwin.xattr
   ];
 
   buildInputs = [
