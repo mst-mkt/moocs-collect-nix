@@ -60,6 +60,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   postPatch = ''
     substituteInPlace src-tauri/tauri.conf.json \
       --replace-fail '"createUpdaterArtifacts": true' '"createUpdaterArtifacts": false'
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
+    substituteInPlace src-tauri/tauri.conf.json \
+      --replace-fail '"signingIdentity": "-"' '"signingIdentity": null'
   '';
 
   preBuild = ''
