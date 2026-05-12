@@ -127,10 +127,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
       ''
     else
       ''
-        # macOS .app bundle: $out/Applications/collect.app/Contents/MacOS/collect
+        # macOS .app bundle: $out/Applications/collect.app/Contents/MacOS/app
         mv $out/Applications/collect.app $out/Applications/moocs-collect.app
         mkdir -p $out/bin
-        ln -s $out/Applications/moocs-collect.app/Contents/MacOS/collect $out/bin/moocs-collect
+        ln -s $out/Applications/moocs-collect.app/Contents/MacOS/app $out/bin/moocs-collect
       '';
 
   meta = {
