@@ -29,6 +29,7 @@ cachix use moocs-collect-nix
 ```
 
 Alternatively, add to your nix configuration:
+
 ```nix
 nix.settings = {
   extra-substituters = [ "https://moocs-collect-nix.cachix.org" ];
