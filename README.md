@@ -27,3 +27,11 @@ Skip local builds by using the Cachix cache.
 ```bash
 cachix use moocs-collect-nix
 ```
+
+Alternatively, add to your nix configuration:
+```nix
+nix.settings = {
+  substituters = [ "https://moocs-collect-nix.cachix.org" ];
+  trusted-public-keys = [ "moocs-collect-nix.cachix.org-1:MpREl4nnQpusRFLilrWt2S67SW1mLuqM6HvcirF/CjE=" ];
+};
+```
