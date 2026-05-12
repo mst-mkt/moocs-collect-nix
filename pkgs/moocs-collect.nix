@@ -49,6 +49,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     fetcherVersion = 3;
     hash = "sha256-xQHbwiZWy2WRddO09ViO+1m+2fryryoJfsR+azWu7B0=";
   };
+  pnpmWorkspaces = [ "desktop" ];
 
   cargoRoot = "../..";
   cargoHash = "sha256-L3n1pg78X8TK7zNacSLW9erAuURd+JehZbgGmOHuojs=";
