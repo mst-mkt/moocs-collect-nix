@@ -18,6 +18,23 @@
         "type": "github"
       }
     },
+    "moocs-collect-ex-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1776837808,
+        "narHash": "sha256-PUE/mwyFeQ7DwFWOHCVxnJG0V0i5DX/dnPDpghLmLt8=",
+        "owner": "skmtrd",
+        "repo": "moocs-collect-ex",
+        "rev": "c237d757e8b981f2e1ef46cc45eb9bfbb33ba756",
+        "type": "github"
+      },
+      "original": {
+        "owner": "skmtrd",
+        "ref": "main",
+        "repo": "moocs-collect-ex",
+        "type": "github"
+      }
+    },
     "moocs-collect-src": {
       "flake": false,
       "locked": {
@@ -71,6 +88,7 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
+        "moocs-collect-ex-src": "moocs-collect-ex-src",
         "moocs-collect-src": "moocs-collect-src",
         "moocs-collect-tui-src": "moocs-collect-tui-src",
         "nixpkgs": "nixpkgs"
