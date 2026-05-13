@@ -14,6 +14,11 @@
       url = "github:mst-mkt/moocs-collect/feat/tui";
       flake = false;
     };
+
+    moocs-collect-ex-src = {
+      url = "github:skmtrd/moocs-collect-ex/main";
+      flake = false;
+    };
   };
 
   outputs =
@@ -22,6 +27,7 @@
       flake-utils,
       moocs-collect-src,
       moocs-collect-tui-src,
+      moocs-collect-ex-src,
       ...
     }:
     let
@@ -37,6 +43,9 @@
         };
         moocs-collect = final.callPackage ./pkgs/moocs-collect.nix {
           src = moocs-collect-src;
+        };
+        moocs-collect-ex = final.callPackage ./pkgs/moocs-collect-ex.nix {
+          src = moocs-collect-ex-src;
         };
       };
     in
@@ -58,6 +67,7 @@
             collect-tui
             mcmerge
             moocs-collect
+            moocs-collect-ex
             ;
           default = pkgs.collect-cli;
         };
