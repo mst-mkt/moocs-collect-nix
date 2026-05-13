@@ -45,3 +45,5 @@ jobs:
         run: nix build --print-build-logs .#mcmerge
       - name: Build moocs-collect
         run: nix build --print-build-logs .#moocs-collect
+      - name: Build moocs-collect-ex
+        run: nix build --print-build-logs .#moocs-collect-ex
