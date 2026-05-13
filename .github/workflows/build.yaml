@@ -6,26 +6,76 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+      - run: nix flake check --no-build --all-systems
+
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.set.outputs.packages }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: set
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          to_json() { jq -Rsc 'split("\n") | map(select(length>0))'; }
+
+          ALL=$(printf '%s\n' pkgs/*.nix | sed 's|pkgs/||;s|\.nix$||' | to_json)
+          if [ "$EVENT" != "pull_request" ]; then
+            echo "packages=$ALL" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed=$(git diff --name-only "$BASE_SHA" HEAD)
+          if echo "$changed" | grep -qE '^(flake\.(nix|lock)|\.github/workflows/)'; then
+            echo "packages=$ALL" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          packages=$(echo "$changed" | sed -nE 's|^pkgs/([^/]+)\.nix$|\1|p' | to_json)
+          echo "packages=$packages" >>"$GITHUB_OUTPUT"
+
   build:
-    name: ${{ matrix.system }}
+    needs: [flake-check, detect]
+    if: ${{ needs.detect.outputs.packages != '[]' }}
+    name: ${{ matrix.system.name }} / ${{ matrix.package }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            system: x86_64-linux
-          - os: ubuntu-24.04-arm
-            system: aarch64-linux
-          - os: macos-14
-            system: aarch64-darwin
-    runs-on: ${{ matrix.os }}
+        system:
+          - { os: ubuntu-latest,    name: x86_64-linux }
+          - { os: ubuntu-24.04-arm, name: aarch64-linux }
+          - { os: macos-14,         name: aarch64-darwin }
+        package: ${{ fromJson(needs.detect.outputs.packages) }}
+    runs-on: ${{ matrix.system.os }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
         with:
           extra_nix_config: |
@@ -35,15 +85,7 @@ jobs:
         with:
           name: moocs-collect-nix
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-      - name: Flake check
-        run: nix flake check --no-build
-      - name: Build collect-cli
-        run: nix build --print-build-logs .#collect-cli
-      - name: Build collect-tui
-        run: nix build --print-build-logs .#collect-tui
-      - name: Build mcmerge
-        run: nix build --print-build-logs .#mcmerge
-      - name: Build moocs-collect
-        run: nix build --print-build-logs .#moocs-collect
-      - name: Build moocs-collect-ex
-        run: nix build --print-build-logs .#moocs-collect-ex
+      - name: Build ${{ matrix.package }}
+        env:
+          PKG: ${{ matrix.package }}
+        run: nix build --print-build-logs ".#$PKG"
