@@ -2,7 +2,7 @@
   lib,
   stdenv,
   rustPlatform,
-  pnpm_10,
+  pnpm_11,
   fetchPnpmDeps,
   pnpmConfigHook,
   cargo-tauri,
@@ -46,9 +46,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   pnpmRoot = "../..";
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
-    pnpm = pnpm_10;
+    pnpm = pnpm_11;
     fetcherVersion = 3;
-    hash = "sha256-xQHbwiZWy2WRddO09ViO+1m+2fryryoJfsR+azWu7B0=";
+    hash = "sha256-twFmjCEfhZ9aCsp1kpNHmxcyxxjvhwNwCWv0eCBS3Gg=";
   };
   pnpmWorkspaces = [ "desktop" ];
 
@@ -81,7 +81,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     cargo-tauri.hook
     nodejs
     pnpmConfigHook
-    pnpm_10
+    pnpm_11
     pkg-config
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
