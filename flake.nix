@@ -72,23 +72,6 @@
           default = pkgs.collect-cli;
         };
 
-        devShells.default = pkgs.mkShell {
-          inputsFrom = [
-            pkgs.collect-cli
-            pkgs.mcmerge
-            pkgs.collect-tui
-          ];
-          packages = with pkgs; [
-            rustc
-            cargo
-            rustfmt
-            clippy
-            rust-analyzer
-            nodejs_20
-            pnpm
-          ];
-        };
-
         formatter = pkgs.nixfmt;
       }
     );
