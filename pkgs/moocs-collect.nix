@@ -53,7 +53,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   pnpmWorkspaces = [ "desktop" ];
 
   cargoRoot = "../..";
-  cargoHash = "sha256-L3n1pg78X8TK7zNacSLW9erAuURd+JehZbgGmOHuojs=";
+  cargoLock.lockFile = "${src}/Cargo.lock";
 
   buildAndTestSubdir = "src-tauri";
 
