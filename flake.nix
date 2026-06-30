@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
 
     moocs-collect-src = {
       url = "github:yu7400ki/moocs-collect/cli-v1.0.2";
@@ -24,13 +23,19 @@
   outputs =
     {
       nixpkgs,
-      flake-utils,
       moocs-collect-src,
       moocs-collect-tui-src,
       moocs-collect-ex-src,
       ...
     }:
     let
+      forAllSystems = nixpkgs.lib.genAttrs [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+
       overlay = final: _prev: {
         collect-cli = final.callPackage ./pkgs/collect-cli.nix {
           src = moocs-collect-src;
@@ -51,17 +56,16 @@
     in
     {
       overlays.default = overlay;
-    }
-    // flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ overlay ];
-        };
-      in
-      {
-        packages = {
+
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ overlay ];
+          };
+        in
+        {
           inherit (pkgs)
             collect-cli
             collect-tui
@@ -70,9 +74,9 @@
             moocs-collect-ex
             ;
           default = pkgs.collect-cli;
-        };
+        }
+      );
 
-        formatter = pkgs.nixfmt;
-      }
-    );
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
+    };
 }
